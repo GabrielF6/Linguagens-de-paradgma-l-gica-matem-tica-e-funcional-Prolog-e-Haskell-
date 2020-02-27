@@ -1,0 +1,31 @@
+main :-
+    open('C:/Users/marco/Documents/GitHub/PrologGame/teste.txt', read, Str),
+    read_file(Str,Lines),
+    close(Str),
+    write(Lines), nl.
+
+read_file(Stream,[]) :-
+    at_end_of_stream(Stream).
+
+read_file(Stream,[X|L]) :-
+    \+ at_end_of_stream(Stream),
+    read(Stream,X),
+    read_file(Stream,L).
+
+reread :-
+   open('C:/Users/marco/Documents/GitHub/PrologGame/teste2.txt',write,H),
+   stream_property(H, position(POS_DUCK2)),
+   write(H,"teste"),
+   write(H,"TESTE"),
+   write(H,"testinho"),
+   set_stream_position(H, POS_DUCK2),
+   flush_output(H),
+   write(H,"                                                                                                                                                                                                                                     "),
+   close(H).
+vIJ(Matriz,I, J,Value) :-
+    nth0(I, Matriz, Row),
+    nth0(J, Row, Value).
+fim(Matrix,N,M,I,J):- %true se fim
+   nth0(N, Matrix, Row),
+   percorrelinha(Row),
+   Naux is N-1,Maux is M-1,fim(Matrix,Naux,Maux),vIJ(Matrix,I,J,0).

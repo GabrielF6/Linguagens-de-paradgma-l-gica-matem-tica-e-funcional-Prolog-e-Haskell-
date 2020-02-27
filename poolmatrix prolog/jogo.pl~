@@ -1,0 +1,112 @@
+%Casos Base
+verifica_travado(Matriz,Pl,Pc,MaxI,MaxJ,NewMatriz):- %true se travado
+   (SUM1 is Pl-1,(SUM1<0;vIJ(Matriz,SUM1,Pc,-1))),
+   (SUM2 is Pc+1,Aux1 is MaxJ-1,(SUM2>Aux1;vIJ(Matriz,Pl,SUM2,-1))),
+   (SUM3 is Pl+1,Aux2 is MaxI-1,(SUM3>Aux2;vIJ(Matriz,SUM3,Pc,-1))),
+   (SUM4 is Pc-1,(SUM4<0;vIJ(Matriz,Pl,SUM4,-1))),
+   vIJ(Matriz,Pl,Pc,X),Decrement is X - 1,
+   replace_row_col(Matriz,Pl,Pc,Decrement,NewMatriz).
+valueofIJ(Matriz,I, J,_,_,Value) :-
+    nth0(I, Matriz, Row),
+    nth0(J, Row, Value).
+fim(_,-1,_,Res):-
+   open('C:/Users/marco/Documents/GitHub/PrologGame/teste2.txt',append,H),
+   writeln(H,Res),
+   %writeln(H,Matrix),
+   close(H).
+fim(Matrix,N,M,Res):- %true se fim
+   nth0(N, Matrix, Row),
+   percorrelinha(Row,Ret), Ret == 1,
+   Naux is N-1,Maux is M-1, fim(Matrix,Naux,Maux,Res).
+percorrelinha([-1|[]],Ret):- Ret is 1,!.
+percorrelinha([-1|XS],Ret):- percorrelinha(XS,Ret).
+
+
+replace_nth(N,I,V,O) :-
+    nth0(N,I,_,T),
+    nth0(N,O,V,T).
+replace_row_col(M,Row,Col,Cell,N) :-
+    nth0(Row,M,Old),
+    replace_nth(Col,Old,Cell,Upd),
+    replace_nth(Row,M,Upd,N).
+
+vIJ(Matriz,I, J,Value) :-
+    nth0(I, Matriz, Row),
+    nth0(J, Row, Value).
+movesq(Matriz,PosL,PosC,N,M,Res):-
+   Aux is PosC - 1, Aux > -1, vIJ(Matriz,PosL,Aux,Value),Value \= -1,
+   NewPL is PosL, NewPC is Aux,vIJ(Matriz,PosL,PosC,X),Decrement is X - 1,
+   replace_row_col(Matriz,PosL,PosC,Decrement,NewMatriz),
+   %write(PosL),write(PosC),write('->'),write(NewPL),write(NewPC),nl,
+   %maplist(writeln,NewMatriz),nl,
+   %open('C:/Users/marco/Documents/GitHub/PrologGame/teste2.txt',append,H),
+   %writeln(H,Matriz),
+   %close(H),
+   jogo(NewMatriz,NewPL,NewPC,N,M,0,[NewPL,NewPC|Res]).
+movedir(Matriz,PosL,PosC,N,M,Res):-
+   Aux is PosC + 1, Aux < M, vIJ(Matriz,PosL,Aux,Value),Value \= -1,
+   NewPL is PosL, NewPC is Aux,vIJ(Matriz,PosL,PosC,X),Decrement is X - 1,
+   replace_row_col(Matriz,PosL,PosC,Decrement,NewMatriz),
+   %write(PosL),write(PosC),write('->'),write(NewPL),write(NewPC),nl,
+   %maplist(writeln,NewMatriz),nl,
+   %open('C:/Users/marco/Documents/GitHub/PrologGame/teste2.txt',append,H),
+   %writeln(H,Matriz),
+   %close(H),
+   jogo(NewMatriz,NewPL,NewPC,N,M,0,[NewPL,NewPC|Res]).
+movecima(Matriz,PosL,PosC,N,M,Res):-
+   Aux is PosL - 1, Aux > -1, vIJ(Matriz,Aux,PosC,Value),Value \= -1,
+   NewPL is Aux, NewPC is PosC,vIJ(Matriz,PosL,PosC,X),Decrement is X - 1,
+   replace_row_col(Matriz,PosL,PosC,Decrement,NewMatriz),
+   %write(PosL),write(PosC),write('->'),write(NewPL),write(NewPC),nl,
+   %maplist(writeln,NewMatriz),nl,
+   %open('C:/Users/marco/Documents/GitHub/PrologGame/teste2.txt',append,H),
+   %writeln(H,Matriz),
+   %close(H),
+   jogo(NewMatriz,NewPL,NewPC,N,M,0,[NewPL,NewPC|Res]).
+movebaixo(Matriz,PosL,PosC,N,M,Res):-
+   Aux is PosL + 1, Aux < N, vIJ(Matriz,Aux,PosC,Value),Value \= -1,
+   NewPL is Aux, NewPC is PosC,vIJ(Matriz,PosL,PosC,X),Decrement is X - 1,
+   %write(PosL),write(PosC),write('->'),write(NewPL),write(NewPC),nl,
+   replace_row_col(Matriz,PosL,PosC,Decrement,NewMatriz),
+   %maplist(writeln,NewMatriz),nl,
+   %open('C:/Users/marco/Documents/GitHub/PrologGame/teste2.txt',append,H),
+   %writeln(H,Matriz),
+   %close(H),
+   jogo(NewMatriz,NewPL,NewPC,N,M,0,[NewPL,NewPC|Res]).
+
+jogo(_,_,_,_,_,1,_).
+jogo(Matriz,PosiL,PosiC,N,M,0,Res):-
+    verifica_travado(Matriz,PosiL,PosiC,N,M,NewMatriz),
+    Newn is N-1,NewM is M-1,fim(NewMatriz,Newn,NewM,Res),jogo(_,_,_,_,_,1,_).
+%jogo(Matriz,PosiL,PosiC,N,M,_,_):-
+%   verifica_travado(Matriz,PosiL,PosiC,N,M,_),
+%   nl,jogo(Matriz,_,_,_,_,1,_).
+
+jogo(Matriz,PosiL,PosiC,N,M,0,Res):-
+   movesq(Matriz,PosiL,PosiC,N,M,Res).
+jogo(Matriz,PosiL,PosiC,N,M,0,Res):-
+   movecima(Matriz,PosiL,PosiC,N,M,Res).
+jogo(Matriz,PosiL,PosiC,N,M,0,Res):-
+   movedir(Matriz,PosiL,PosiC,N,M,Res).
+jogo(Matriz,PosiL,PosiC,N,M,0,Res):-
+   movebaixo(Matriz,PosiL,PosiC,N,M,Res).
+
+program(X):- findall(true,jogo([[1,1,1],[1,1,1],[1,1,1]],1,1,3,3,0,[1,1]),X).
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
